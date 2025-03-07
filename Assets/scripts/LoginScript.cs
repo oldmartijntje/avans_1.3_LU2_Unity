@@ -51,6 +51,8 @@ public class LoginScript : MonoBehaviour
         Debug.Log(json);
         StartCoroutine(apiConnecter.SendPostRequest(json, "account/register", (string response, string error) =>
         {
+            SetTextColor("#FFFFFF", errorMessageLabel);
+            errorMessageLabel.text = "Connecting...";
             if (error == null)
             {
                 Debug.Log("Response: " + response);
@@ -62,6 +64,7 @@ public class LoginScript : MonoBehaviour
             }
             else
             {
+                SetTextColor("#FF0000", errorMessageLabel);
                 errorMessageLabel.text = "Username already taken.";
                 Debug.LogError(error);
             }
@@ -70,6 +73,8 @@ public class LoginScript : MonoBehaviour
 
     private void LoginUser()
     {
+        SetTextColor("#FFFFFF", errorMessageLabel);
+        errorMessageLabel.text = "Connecting...";
         string json = JsonConvert.SerializeObject(new { email= usernameValue, password= passwordValue }, Formatting.Indented);
         Debug.Log(json);
         StartCoroutine(apiConnecter.SendPostRequest(json, "account/login", (string response, string error) =>
@@ -84,6 +89,7 @@ public class LoginScript : MonoBehaviour
             }
             else
             {
+                SetTextColor("#FF0000", errorMessageLabel);
                 errorMessageLabel.text = "Invalid username & password combination.";
             }
         }));
