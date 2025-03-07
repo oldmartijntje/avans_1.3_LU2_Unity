@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Assets.scripts.Models;
 using ColorUtility = UnityEngine.ColorUtility;
 using UnityEngine.UI;
+using System.Collections;
 
 public class LoginScript : MonoBehaviour
 {
@@ -13,12 +14,38 @@ public class LoginScript : MonoBehaviour
     private string usernameValue = "";
     public TextMeshProUGUI errorMessageLabel;
     public TMP_InputField passwordField;
+    public CanvasGroup LoadingPanel;
+    public CanvasGroup LoginPanel;
     private ApiConnecter apiConnecter;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         apiConnecter = FindFirstObjectByType<ApiConnecter>();
+        StartCoroutine(DelayedRequest());
+    }
+
+    IEnumerator DelayedRequest()
+    {
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(apiConnecter.SendAuthGetRequest("account/checkAccessToken", (string response, string error) =>
+        {
+            if (error == null)
+            {
+                SceneManager.LoadScene("EnvironmentSelect");
+            }
+            else
+            {
+                string filePath = "UserSettings/playerLogin.json";
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            LoadingPanel.alpha = 0f;
+            LoginPanel.alpha = 1f;
+            LoginPanel.interactable = true;
+        }));
     }
 
     // Update is called once per frame
@@ -75,7 +102,7 @@ public class LoginScript : MonoBehaviour
     {
         SetTextColor("#FFFFFF", errorMessageLabel);
         errorMessageLabel.text = "Connecting...";
-        string json = JsonConvert.SerializeObject(new { email= usernameValue, password= passwordValue }, Formatting.Indented);
+        string json = JsonConvert.SerializeObject(new { email = usernameValue, password = passwordValue }, Formatting.Indented);
         Debug.Log(json);
         StartCoroutine(apiConnecter.SendPostRequest(json, "account/login", (string response, string error) =>
         {
@@ -86,6 +113,7 @@ public class LoginScript : MonoBehaviour
                 SceneManager.LoadScene("EnvironmentSelect");
                 LoginResponse decodedResponse = JsonConvert.DeserializeObject<LoginResponse>(response);
                 MainManager.Instance.SetLoginCredentials(decodedResponse);
+                System.IO.File.WriteAllText("UserSettings/playerLogin.json", response);
             }
             else
             {
@@ -102,7 +130,8 @@ public class LoginScript : MonoBehaviour
         if (registerOrLogin == "Register")
         {
             RegisterUser();
-        } else
+        }
+        else
         {
             LoginUser();
         }

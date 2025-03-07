@@ -11,7 +11,6 @@ public class ApiConnecter : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        StartCoroutine(SendGetRequest("", HandleResponse));
     }
 
     // Update is called once per frame
@@ -32,7 +31,7 @@ public class ApiConnecter : MonoBehaviour
         }
     }
 
-    private IEnumerator SendGetRequest(string path, Action<string, string> callback)
+    public IEnumerator SendGetRequest(string path, Action<string, string> callback)
     {
         string url = $"{baseUrl}/{path}";
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -46,19 +45,30 @@ public class ApiConnecter : MonoBehaviour
         }
     }
 
-    private IEnumerator SendGetRequest(string path, string accessToken, Action<string, string> callback)
+    public IEnumerator SendAuthGetRequest(string path, Action<string, string> callback)
     {
         string url = $"{baseUrl}/{path}";
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+            if (MainManager.Instance.LoginResponse == null)
+            {
+                callback?.Invoke(null, "Not logged in");
+            } else
+            {
+                request.SetRequestHeader("Authorization", $"Bearer {MainManager.Instance.LoginResponse.accessToken}");
 
-            yield return request.SendWebRequest();
+                yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
-                callback?.Invoke(request.downloadHandler.text, null);
-            else
-                callback?.Invoke(null, request.error);
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    callback?.Invoke(request.downloadHandler.text, null);
+                }
+                else
+                {
+                    Debug.LogError(JsonConvert.SerializeObject(request.error));
+                    callback?.Invoke(null, request.error);
+                }
+            }
         }
     }
 

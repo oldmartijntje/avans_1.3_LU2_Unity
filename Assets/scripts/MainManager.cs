@@ -1,4 +1,6 @@
 using Assets.scripts.Models;
+using Newtonsoft.Json;
+using System.IO;
 using UnityEngine;
 
 public class MainManager : MonoBehaviour
@@ -6,7 +8,7 @@ public class MainManager : MonoBehaviour
     // Start() and Update() methods deleted - we don't need them right now
 
     public static MainManager Instance;
-    public LoginResponse LoginResponse;
+    public LoginResponse? LoginResponse;
 
     private void Awake()
     {
@@ -29,9 +31,16 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
-        if (MainManager.Instance != null)
+        string filePath = "UserSettings/playerLogin.json";
+
+        if (System.IO.File.Exists(filePath))
         {
-            // i don't want to set it.
+            string jsonString = System.IO.File.ReadAllText(filePath);
+            LoginResponse = JsonConvert.DeserializeObject<LoginResponse>(jsonString);
+        }
+        else
+        {
+            Debug.LogWarning("No data found.");
         }
     }
 }
