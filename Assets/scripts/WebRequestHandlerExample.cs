@@ -6,7 +6,7 @@ using System.Text;
 
 public class WebRequestHandlerExample : MonoBehaviour
 {
-    private string baseUrl = "https://jsonplaceholder.typicode.com/posts"; // Example API URL
+    private string baseUrl = "https://avansict2225486.azurewebsites.net/"; // Example API URL
 
     // GET Request
     public void GetRequest(int id, Action<string, string> callback)
@@ -16,7 +16,7 @@ public class WebRequestHandlerExample : MonoBehaviour
 
     private IEnumerator SendGetRequest(int id, Action<string, string> callback)
     {
-        string url = $"{baseUrl}/{id}";
+        string url = $"{baseUrl}";
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
             yield return request.SendWebRequest();
