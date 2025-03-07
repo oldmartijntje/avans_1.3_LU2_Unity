@@ -46,6 +46,22 @@ public class ApiConnecter : MonoBehaviour
         }
     }
 
+    private IEnumerator SendGetRequest(string path, string accessToken, Action<string, string> callback)
+    {
+        string url = $"{baseUrl}/{path}";
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+                callback?.Invoke(request.downloadHandler.text, null);
+            else
+                callback?.Invoke(null, request.error);
+        }
+    }
+
     public IEnumerator SendPostRequest(string jsonData, string path, Action<string, string> callback)
     {
         string url = $"{baseUrl}/{path}";
@@ -55,6 +71,28 @@ public class ApiConnecter : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(jsonToSend);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+                callback?.Invoke(request.downloadHandler.text, null);
+            else
+                callback?.Invoke(null, request.error);
+        }
+    }
+
+    public IEnumerator SendPostRequest(string jsonData, string path, string accessToken, Action<string, string> callback)
+    {
+        string url = $"{baseUrl}/{path}";
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            byte[] jsonToSend = Encoding.UTF8.GetBytes(jsonData);
+            request.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // Add Authorization header
+            request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
 
             yield return request.SendWebRequest();
 
