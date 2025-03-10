@@ -1,6 +1,5 @@
 using Assets.scripts.Models;
 using Newtonsoft.Json;
-using System.IO;
 using UnityEngine;
 
 public class MainManager : MonoBehaviour

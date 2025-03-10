@@ -1,11 +1,9 @@
 using TMPro;
 using UnityEngine;
 using Newtonsoft.Json;
-using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using Assets.scripts.Models;
 using ColorUtility = UnityEngine.ColorUtility;
-using UnityEngine.UI;
 using System.Collections;
 
 public class LoginScript : MonoBehaviour
