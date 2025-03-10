@@ -40,7 +40,9 @@ public class MainManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No data found.");
+            Debug.Log("No data found.");
         }
     }
+
+
 }

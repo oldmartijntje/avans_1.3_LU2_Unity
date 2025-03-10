@@ -2,8 +2,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Text;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class ApiConnecter : MonoBehaviour
 {
@@ -65,12 +67,48 @@ public class ApiConnecter : MonoBehaviour
                 }
                 else
                 {
+                    Debug.LogError(JsonConvert.SerializeObject(request));
+                    callback?.Invoke(null, request.error);
+                }
+            }
+        }
+    }
+
+    public IEnumerator SendAuthDeleteRequest(string path, Action<string, string> callback)
+    {
+        string url = $"{baseUrl}/{path}";
+        using (UnityWebRequest request = UnityWebRequest.Delete(url))
+        {
+            if (MainManager.Instance.LoginResponse == null)
+            {
+                callback?.Invoke(null, "Not logged in");
+            }
+            else
+            {
+                request.SetRequestHeader("Authorization", $"Bearer {MainManager.Instance.LoginResponse.accessToken}");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    if (request.downloadHandler == null)
+                    {
+                        callback?.Invoke("", null);
+                    } else
+                    {
+                        callback?.Invoke(request.downloadHandler.text, null);
+                    }
+                    
+                }
+                else
+                {
                     Debug.LogError(JsonConvert.SerializeObject(request.error));
                     callback?.Invoke(null, request.error);
                 }
             }
         }
     }
+
 
     public IEnumerator SendPostRequest(string jsonData, string path, Action<string, string> callback)
     {
@@ -91,25 +129,80 @@ public class ApiConnecter : MonoBehaviour
         }
     }
 
-    public IEnumerator SendPostRequest(string jsonData, string path, string accessToken, Action<string, string> callback)
+    public IEnumerator SendAuthPutRequest(string jsonData, string path, Action<string, string> callback)
     {
         string url = $"{baseUrl}/{path}";
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        using (UnityWebRequest request = UnityWebRequest.Put(url, jsonData))
         {
-            byte[] jsonToSend = Encoding.UTF8.GetBytes(jsonData);
-            request.uploadHandler = new UploadHandlerRaw(jsonToSend);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            // Add Authorization header
-            request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-                callback?.Invoke(request.downloadHandler.text, null);
+            if (MainManager.Instance.LoginResponse == null)
+            {
+                callback?.Invoke(null, "Not logged in");
+            }
             else
-                callback?.Invoke(null, request.error);
+            {
+                request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonData));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", $"Bearer {MainManager.Instance.LoginResponse.accessToken}");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    callback?.Invoke(request.downloadHandler.text, null);
+                }
+                else
+                {
+                    Debug.LogError(JsonConvert.SerializeObject(request.error));
+                    callback?.Invoke(null, request.error);
+                }
+            }
+        }
+    }
+
+
+    public bool HandleLoginError(string response, string error)
+    {
+        if (error == "HTTP/1.1 401 Unauthorized" || error == "Not logged in")
+        {
+            Debug.LogWarning("Login Session Illegal/Expired");
+            SceneManager.LoadScene("LoginScene");
+            return true;
+        }
+        return false;
+    }
+
+    public IEnumerator SendAuthPostRequest(string jsonData, string path, Action<string, string> callback)
+    {
+        string url = $"{baseUrl}/{path}";
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            if (MainManager.Instance.LoginResponse == null)
+            {
+                callback?.Invoke(null, "Not logged in");
+            }
+            else
+            {
+                byte[] jsonToSend = Encoding.UTF8.GetBytes(jsonData);
+                request.uploadHandler = new UploadHandlerRaw(jsonToSend);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+
+                // Add Authorization header
+                request.SetRequestHeader("Authorization", $"Bearer {MainManager.Instance.LoginResponse.accessToken}");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    callback?.Invoke(request.downloadHandler.text, null);
+                }
+                else
+                {
+                    Debug.LogError(JsonConvert.SerializeObject(request.error));
+                    callback?.Invoke(null, request.error);
+                }
+            }
         }
     }
 }

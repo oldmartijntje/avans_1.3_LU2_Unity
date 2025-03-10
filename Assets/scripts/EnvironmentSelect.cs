@@ -1,11 +1,13 @@
 using Assets.scripts.Models;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class EnvironmentSelect : MonoBehaviour
 {
@@ -14,6 +16,7 @@ public class EnvironmentSelect : MonoBehaviour
     private ApiConnecter apiConnecter;
     public GameObject activeRoomPrefab;
     public GameObject formPrefab;
+    private GameObject? environmentCreationForm;
     private double paddingX = 56;
     private double paddingY = 61;
     private double width = 563.4;
@@ -48,41 +51,99 @@ public class EnvironmentSelect : MonoBehaviour
         {
             Debug.LogError("No API Connector found!");
         }
-        StartCoroutine(apiConnecter.SendAuthGetRequest("api/Environment", (string response, string error) =>
+        StartCoroutine(apiConnecter.SendAuthGetRequest("api/Environment", RenderUI));
+
+    }
+
+    private void RenderUI(string response, string error)
+    {
+        if (apiConnecter.HandleLoginError(response, error))
         {
-            if (error == null)
+            return;
+        }
+        if (error == null)
+        {
+            RectTransform parentRectTransform = MainContentPanel.GetComponent<RectTransform>();
+
+            foreach (Transform child in parentRectTransform)
             {
-                RectTransform parentRectTransform = MainContentPanel.GetComponent<RectTransform>();
-                Debug.Log(response);
-                List<Environment2D> environments = JsonConvert.DeserializeObject<List<Environment2D>>(response);
-                Instantiate(formPrefab, coordsList[0], Quaternion.identity, parentRectTransform);
-                for (int i = 1; i < environments.Count + 1; i++)
+                Destroy(child.gameObject);
+            }
+
+            List<Environment2D> environments = JsonConvert.DeserializeObject<List<Environment2D>>(response);
+            environmentCreationForm = Instantiate(formPrefab, coordsList[0], Quaternion.identity, parentRectTransform);
+            for (int i = 1; i < environments.Count + 1; i++)
+            {
+                if (i - 1 >= environments.Count) continue;
+                int currentIndex = i - 1;
+
+                GameObject environment = Instantiate(activeRoomPrefab, coordsList[i], Quaternion.identity, parentRectTransform);
+                if (environment != null && environment.transform.childCount >= 4)
                 {
-                    GameObject environment = Instantiate(activeRoomPrefab, coordsList[i], Quaternion.identity, parentRectTransform);
-                    if (environment != null && environment.transform.childCount >= 2)
-                    {
-                        // Access the second child and get the TextMeshProUGUI component
-                        TextMeshProUGUI environmentNameLabel = environment.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-                        environmentNameLabel.text = environments[i - 1].Name;
-                        TextMeshProUGUI environmentSizeLabel = environment.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-                        environmentSizeLabel.text = $"Size: {environments[i - 1].MaxHeight}x{environments[i - 1].MaxLength}";
-                    }
+                    // Access the second child and get the TextMeshProUGUI component
+                    TextMeshProUGUI environmentNameLabel = environment.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+                    environmentNameLabel.text = $"{environments[currentIndex].Name}";
+                    TextMeshProUGUI environmentSizeLabel = environment.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+                    environmentSizeLabel.text = $"Size: {environments[currentIndex].MaxHeight}x{environments[currentIndex].MaxLength}";
+                    Button environmentDeleteButton = environment.transform.GetChild(2).GetComponent<Button>();
+                    environmentDeleteButton.onClick.RemoveAllListeners();
+                    environmentDeleteButton.onClick.AddListener(() => DeleteEnvironment(environments[currentIndex].Id));
+                    Button environmentLoadButton = environment.transform.GetChild(3).GetComponent<Button>();
+                    environmentLoadButton.onClick.RemoveAllListeners();
+                    environmentLoadButton.onClick.AddListener(() => LoadEnvironment(environments[currentIndex].Id));
                 }
             }
-            else
-            {
-                Debug.LogError(error);
-            }
-            LoadingScreenPanel.alpha = 0f;
-            LoadingScreenPanel.interactable = false;
-            MainContentPanel.alpha = 1f;
-            MainContentPanel.interactable = true;
-        }));
-
+        }
+        else
+        {
+            Debug.LogError(error);
+        }
+        LoadingScreenPanel.alpha = 0f;
+        LoadingScreenPanel.interactable = false;
+        MainContentPanel.alpha = 1f;
+        MainContentPanel.interactable = true;
     }
 
     void Update()
     {
         
     }
+
+    public void CreateEnvironment(string name, int width, int height, Action<string, string> callback)
+    {
+        string jsonString = JsonConvert.SerializeObject(new
+        {
+            name = name,
+            maxHeight = width,
+            maxLength = height
+        });
+        StartCoroutine(apiConnecter.SendAuthPostRequest(jsonString, "api/Environment", callback));
+    }
+
+    public void LoadEnvironment(int identifier)
+    {
+        Debug.Log($"Loading {identifier}");
+    }
+
+    public void DeleteEnvironment(int identifier)
+    {
+        StartCoroutine(apiConnecter.SendAuthDeleteRequest($"api/Environment/{identifier}", (string response, string error) =>
+        {
+            if (apiConnecter.HandleLoginError(response, error))
+            {
+                return;
+            }
+            Refresh();
+        }));
+    }
+
+    public void Refresh()
+    {
+        LoadingScreenPanel.alpha = 1f;
+        MainContentPanel.alpha = 0f;
+        MainContentPanel.interactable = false;
+        LoadingScreenPanel.interactable = true;
+        StartCoroutine(apiConnecter.SendAuthGetRequest("api/Environment", RenderUI));
+    }
+
 }
