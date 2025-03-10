@@ -14,13 +14,23 @@ public class LoginScript : MonoBehaviour
     private string usernameValue = "";
     public TextMeshProUGUI errorMessageLabel;
     public TMP_InputField passwordField;
-    public CanvasGroup LoadingPanel;
-    public CanvasGroup LoginPanel;
+    public CanvasGroup LoadingScreenPanel;
+    public CanvasGroup MainContentPanel;
     private ApiConnecter apiConnecter;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        LoadingScreenPanel.alpha = 1f;
+        MainContentPanel.alpha = 0f;
+        MainContentPanel.interactable = false;
+        LoadingScreenPanel.interactable = true;
+        if (LoadingScreenPanel != null && LoadingScreenPanel.transform.childCount >= 2)
+        {
+            // Access the second child and get the TextMeshProUGUI component
+            TextMeshProUGUI LoadingScreenTooltipLabel = LoadingScreenPanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            LoadingScreenTooltipLabel.text = "Trying to login automatically...";
+        }
         apiConnecter = FindFirstObjectByType<ApiConnecter>();
         StartCoroutine(DelayedRequest());
     }
@@ -42,9 +52,10 @@ public class LoginScript : MonoBehaviour
                     System.IO.File.Delete(filePath);
                 }
             }
-            LoadingPanel.alpha = 0f;
-            LoginPanel.alpha = 1f;
-            LoginPanel.interactable = true;
+            LoadingScreenPanel.alpha = 0f;
+            LoadingScreenPanel.interactable = false;
+            MainContentPanel.alpha = 1f;
+            MainContentPanel.interactable = true;
         }));
     }
 
