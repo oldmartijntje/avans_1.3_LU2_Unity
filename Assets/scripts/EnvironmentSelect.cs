@@ -114,15 +114,16 @@ public class EnvironmentSelect : MonoBehaviour
         string jsonString = JsonConvert.SerializeObject(new
         {
             name = name,
-            maxHeight = width,
-            maxLength = height
+            maxHeight = height,
+            maxLength = width
         });
         StartCoroutine(apiConnecter.SendAuthPostRequest(jsonString, "api/Environment", callback));
     }
 
     public void LoadEnvironment(int identifier)
     {
-        Debug.Log($"Loading {identifier}");
+        MainManager.Instance.environmentSelected = identifier;
+        SceneManager.LoadScene("Sandbox");
     }
 
     public void DeleteEnvironment(int identifier)

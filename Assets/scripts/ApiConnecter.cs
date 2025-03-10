@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Text;
@@ -175,7 +176,7 @@ public class ApiConnecter : MonoBehaviour
     public IEnumerator SendAuthPostRequest(string jsonData, string path, Action<string, string> callback)
     {
         string url = $"{baseUrl}/{path}";
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
             if (MainManager.Instance.LoginResponse == null)
             {
@@ -199,8 +200,34 @@ public class ApiConnecter : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError(JsonConvert.SerializeObject(request.error));
-                    callback?.Invoke(null, request.error);
+                    Debug.LogError(JsonConvert.SerializeObject(request));
+                    
+                    if (request.downloadHandler != null && request.downloadHandler.text != null)
+                    {
+                        try
+                        {
+                            var jsonObject = JObject.Parse(request.downloadHandler.text);
+                            if (jsonObject["errors"] != null)
+                            {
+                                var firstError = jsonObject["errors"]
+                                .First        
+                                .First[0]     
+                                .ToString();
+
+                                callback?.Invoke(null, firstError);
+                            } else
+                            {
+                                callback?.Invoke(null, request.downloadHandler.text);
+                            }
+
+                        } catch
+                        {
+                            callback?.Invoke(null, request.downloadHandler.text);
+                        }
+                    } else
+                    {
+                        callback?.Invoke(null, request.error);
+                    }
                 }
             }
         }

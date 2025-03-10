@@ -9,6 +9,7 @@ public class MainManager : MonoBehaviour
 
     public static MainManager Instance;
     public LoginResponse? LoginResponse;
+    public int environmentSelected;
 
     private void Awake()
     {
