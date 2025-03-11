@@ -25,4 +25,11 @@ namespace Assets.scripts.Models
         public string UserId { get; set; } = "";
 
     }
+
+    public class FullEnvironment2DObject
+    {
+        public int environmentId { get; set; } 
+        public Environment2D environmentData { get; set; }
+        public List<Object2D> environmentObjects { get; set; }
+    }
 }

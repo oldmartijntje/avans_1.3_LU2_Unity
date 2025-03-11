@@ -914,6 +914,10 @@ PrefabInstance:
       propertyPath: canvas
       value: 
       objectReference: {fileID: 522750130}
+    - target: {fileID: 2143467033655625718, guid: 2da06e27969a3a048a39aad3465f17a7, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

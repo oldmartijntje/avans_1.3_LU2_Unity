@@ -1,12 +1,16 @@
+using Assets.scripts.Models;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SandboxLogic : MonoBehaviour
 {
     private ApiConnecter apiConnecter;
     public CanvasGroup LoadingScreenPanel;
     public CanvasGroup MainContentPanel;
+    private FullEnvironment2DObject fullEnvironment2DObject;
 
     void Start()
     {
@@ -26,25 +30,40 @@ public class SandboxLogic : MonoBehaviour
             Debug.LogError("No API Connector found!");
         }
         Debug.Log($"api/Environment/{MainManager.Instance.environmentSelected}");
-        StartCoroutine(apiConnecter.SendAuthGetRequest($"/api/Environment/{MainManager.Instance.environmentSelected}", RenderUI));
+        StartCoroutine(apiConnecter.SendAuthGetRequest($"/api/Environment/{MainManager.Instance.environmentSelected}", HandleGetResponse));
     }
 
-    private void RenderUI(string response, string error)
+    private void HandleGetResponse(string response, string error)
     {
-        if (apiConnecter.HandleLoginError(response, error, true))
+        if (apiConnecter.HandleLoginError(response, error, true, LoadingScreenPanel, MainContentPanel))
         {
             return;
         }
         if (error == null)
         {
-            Debug.Log(response);
+            try
+            {
+                Debug.Log(response);
+                FullEnvironment2DObject json = JsonConvert.DeserializeObject<FullEnvironment2DObject>(response);
+                Refresh();
+            }
+            catch
+            {
+                Debug.LogError($"Unparsable: {response}");
+                SceneManager.LoadScene("LoginScene");
+            }
+            
         } else
         {
+            SceneManager.LoadScene("EnvironmentSelect");
             Debug.Log(error);
         }
     }
 
-
+    public void Refresh()
+    {
+        Debug.Log("Refreshing UI");
+    }
 
     void Update()
     {

@@ -10,9 +10,6 @@ public class MainManager : MonoBehaviour
     public static MainManager Instance;
     public LoginResponse LoginResponse; 
     public int environmentSelected; // will get overwritten. it's just debug value
-    private int maxHeight;
-    private int maxWidth;
-    private List<Object2D> objects;
 
     private void Awake()
     {

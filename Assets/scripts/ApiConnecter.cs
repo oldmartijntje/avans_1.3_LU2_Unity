@@ -1,3 +1,4 @@
+using Assets.scripts.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -161,13 +162,41 @@ public class ApiConnecter : MonoBehaviour
     }
 
 
-    public bool HandleLoginError(string response, string error, bool autoLogin)
+    public bool HandleLoginError(string response, string error, bool autoLogin, CanvasGroup loadingScreen = null, CanvasGroup contentPanel = null)
     {
         if (error == "HTTP/1.1 401 Unauthorized" || error == "Not logged in")
         {
+            if (loadingScreen != null && contentPanel != null)
+            {
+                loadingScreen.alpha = 1f;
+                contentPanel.alpha = 0f;
+                contentPanel.interactable = false;
+                loadingScreen.interactable = true;
+            }
             Debug.LogWarning("Login Session Illegal/Expired");
-            SceneManager.LoadScene("LoginScene");
-            return true;
+            if (autoLogin && error == "HTTP/1.1 401 Unauthorized" && MainManager.Instance.LoginResponse != null)
+            {
+                StartCoroutine(SendAuthPostRequest(JsonConvert.SerializeObject(new { refreshToken = MainManager.Instance.LoginResponse.refreshToken }),"/account/refresh", 
+                    (string response, string error) =>
+                {
+                    if (error == null)
+                    {
+                        LoginResponse decodedResponse = JsonConvert.DeserializeObject<LoginResponse>(response);
+                        MainManager.Instance.SetLoginCredentials(decodedResponse);
+                        SceneManager.LoadScene("LoginScene");
+                    } else
+                    {
+                        SceneManager.LoadScene("LoginScene");
+                    }
+                }));
+                return true;
+            } 
+            else
+            {
+                SceneManager.LoadScene("LoginScene");
+                return true;
+            }
+            
         }
         return false;
     }
