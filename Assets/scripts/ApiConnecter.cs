@@ -161,7 +161,7 @@ public class ApiConnecter : MonoBehaviour
     }
 
 
-    public bool HandleLoginError(string response, string error)
+    public bool HandleLoginError(string response, string error, bool autoLogin)
     {
         if (error == "HTTP/1.1 401 Unauthorized" || error == "Not logged in")
         {

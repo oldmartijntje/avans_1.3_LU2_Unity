@@ -1,14 +1,18 @@
 using Assets.scripts.Models;
 using Newtonsoft.Json;
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MainManager : MonoBehaviour
 {
     // Start() and Update() methods deleted - we don't need them right now
-
     public static MainManager Instance;
-    public LoginResponse? LoginResponse;
-    public int environmentSelected;
+    public LoginResponse LoginResponse; 
+    public int environmentSelected; // will get overwritten. it's just debug value
+    private int maxHeight;
+    private int maxWidth;
+    private List<Object2D> objects;
 
     private void Awake()
     {
@@ -32,7 +36,6 @@ public class MainManager : MonoBehaviour
     private void Start()
     {
         string filePath = "UserSettings/playerLogin.json";
-
         if (System.IO.File.Exists(filePath))
         {
             string jsonString = System.IO.File.ReadAllText(filePath);

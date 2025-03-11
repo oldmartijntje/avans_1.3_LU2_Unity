@@ -1,0 +1,56 @@
+{
+    "environmentId": 15,
+    "environmentData": {
+        "id": 15,
+        "userId": "1bad98da-e48c-4506-bd78-922c7cb38e42",
+        "name": "testing",
+        "maxHeight": 75,
+        "maxLength": 125
+    },
+    "environmentObjects": [
+        {
+            "id": 1,
+            "prefabId": 0,
+            "positionX": 0,
+            "positionY": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotationZ": 0,
+            "sortingLayer": 0,
+            "environmentId": 15
+        },
+        {
+            "id": 2,
+            "prefabId": 0,
+            "positionX": 10,
+            "positionY": 10,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotationZ": 0,
+            "sortingLayer": 0,
+            "environmentId": 15
+        },
+        {
+            "id": 3,
+            "prefabId": 0,
+            "positionX": 125,
+            "positionY": 75,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotationZ": 0,
+            "sortingLayer": 0,
+            "environmentId": 15
+        },
+        {
+            "id": 4,
+            "prefabId": 1,
+            "positionX": 75,
+            "positionY": 75,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotationZ": 0,
+            "sortingLayer": 0,
+            "environmentId": 15
+        }
+    ]
+}

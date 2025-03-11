@@ -14,7 +14,7 @@ public class EnvironmentSelect : MonoBehaviour
     private ApiConnecter apiConnecter;
     public GameObject activeRoomPrefab;
     public GameObject formPrefab;
-    private GameObject? environmentCreationForm;
+    private GameObject environmentCreationForm;
     private double paddingX = 56;
     private double paddingY = 61;
     private double width = 563.4;
@@ -55,7 +55,7 @@ public class EnvironmentSelect : MonoBehaviour
 
     private void RenderUI(string response, string error)
     {
-        if (apiConnecter.HandleLoginError(response, error))
+        if (apiConnecter.HandleLoginError(response, error, true))
         {
             return;
         }
@@ -128,7 +128,7 @@ public class EnvironmentSelect : MonoBehaviour
     {
         StartCoroutine(apiConnecter.SendAuthDeleteRequest($"api/Environment/{identifier}", (string response, string error) =>
         {
-            if (apiConnecter.HandleLoginError(response, error))
+            if (apiConnecter.HandleLoginError(response, error,true))
             {
                 return;
             }
