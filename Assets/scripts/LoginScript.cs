@@ -23,6 +23,7 @@ public class LoginScript : MonoBehaviour
         MainContentPanel.alpha = 0f;
         MainContentPanel.interactable = false;
         LoadingScreenPanel.interactable = true;
+        LoadingScreenPanel.blocksRaycasts = true;
         if (LoadingScreenPanel != null && LoadingScreenPanel.transform.childCount >= 2)
         {
             // Access the second child and get the TextMeshProUGUI component
@@ -40,7 +41,13 @@ public class LoginScript : MonoBehaviour
         {
             if (error == null)
             {
-                SceneManager.LoadScene("EnvironmentSelect");
+                if (MainManager.Instance.NavigationScene != null && MainManager.Instance.NavigationScene != "")
+                {
+                    SceneManager.LoadScene(MainManager.Instance.NavigationScene);
+                }else
+                {
+                    SceneManager.LoadScene("EnvironmentSelect");
+                }
             }
             else
             {
@@ -52,6 +59,7 @@ public class LoginScript : MonoBehaviour
             }
             LoadingScreenPanel.alpha = 0f;
             LoadingScreenPanel.interactable = false;
+            LoadingScreenPanel.blocksRaycasts = false;
             MainContentPanel.alpha = 1f;
             MainContentPanel.interactable = true;
         }));

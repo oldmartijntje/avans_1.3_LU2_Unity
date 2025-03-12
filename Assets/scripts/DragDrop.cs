@@ -1,35 +1,24 @@
-using UnityEngine.EventSystems;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+public class DragDrop : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField]
-    private Canvas canvas;
-    private CanvasGroup canvasGroup;
+    private bool _dragging;
 
-    private RectTransform rectTransform;
-
-    private void Awake()
+    public void OnPointerDown(PointerEventData data)
     {
-        rectTransform = GetComponent<RectTransform>();
-        canvasGroup = GetComponent<CanvasGroup>();
+        _dragging = true;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnPointerUp(PointerEventData data)
     {
-        canvasGroup.alpha = 0.6f;
-        canvasGroup.blocksRaycasts = false;
+        _dragging = false;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    private void Update()
     {
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        canvasGroup.alpha = 1f;
-        canvasGroup.blocksRaycasts = true;
-        Debug.Log(eventData.position);
+        if (_dragging == true)
+            transform.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
     }
 }
+

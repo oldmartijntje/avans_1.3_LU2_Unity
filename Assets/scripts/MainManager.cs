@@ -8,6 +8,7 @@ public class MainManager : MonoBehaviour
     public static MainManager Instance;
     public LoginResponse LoginResponse; 
     public int environmentSelected; // will get overwritten. it's just debug value
+    public string NavigationScene;
 
     private void Awake()
     {

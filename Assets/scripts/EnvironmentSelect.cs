@@ -26,6 +26,7 @@ public class EnvironmentSelect : MonoBehaviour
     private List<Vector3> coordsList = new List<Vector3>();
     void Start()
     {
+        MainManager.Instance.NavigationScene = "EnvironmentSelect";
          for (var yi = amountY; yi > 0; yi--)
         {
             for (var xi = 0; xi < amountX; xi++)
@@ -37,6 +38,7 @@ public class EnvironmentSelect : MonoBehaviour
         LoadingScreenPanel.alpha = 1f;
         MainContentPanel.alpha = 0f;
         MainContentPanel.interactable = false;
+        LoadingScreenPanel.blocksRaycasts = true;
         LoadingScreenPanel.interactable = true;
         if (LoadingScreenPanel != null && LoadingScreenPanel.transform.childCount >= 2)
         {
@@ -98,6 +100,7 @@ public class EnvironmentSelect : MonoBehaviour
         }
         LoadingScreenPanel.alpha = 0f;
         LoadingScreenPanel.interactable = false;
+        LoadingScreenPanel.blocksRaycasts = false;
         MainContentPanel.alpha = 1f;
         MainContentPanel.interactable = true;
     }
@@ -142,6 +145,7 @@ public class EnvironmentSelect : MonoBehaviour
         MainContentPanel.alpha = 0f;
         MainContentPanel.interactable = false;
         LoadingScreenPanel.interactable = true;
+        LoadingScreenPanel.blocksRaycasts = true;
         StartCoroutine(apiConnecter.SendAuthGetRequest("api/Environment", RenderUI));
     }
 
