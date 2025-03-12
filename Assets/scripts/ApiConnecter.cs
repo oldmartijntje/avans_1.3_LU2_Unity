@@ -176,16 +176,20 @@ public class ApiConnecter : MonoBehaviour
             Debug.LogWarning("Login Session Illegal/Expired");
             if (autoLogin && error == "HTTP/1.1 401 Unauthorized" && MainManager.Instance.LoginResponse != null)
             {
+                Debug.Log("Trying to refresh token");
                 StartCoroutine(SendAuthPostRequest(JsonConvert.SerializeObject(new { refreshToken = MainManager.Instance.LoginResponse.refreshToken }),"/account/refresh", 
                     (string response, string error) =>
                 {
                     if (error == null)
                     {
+                        Debug.Log($"Trying to use new token: {response}");
                         LoginResponse decodedResponse = JsonConvert.DeserializeObject<LoginResponse>(response);
                         MainManager.Instance.SetLoginCredentials(decodedResponse);
+                        System.IO.File.WriteAllText("UserSettings/playerLogin.json", response);
                         SceneManager.LoadScene("LoginScene");
                     } else
                     {
+                        Debug.LogError($"Not new sessiontoken: {error}");
                         SceneManager.LoadScene("LoginScene");
                     }
                 }));
