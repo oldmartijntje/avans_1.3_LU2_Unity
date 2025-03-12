@@ -1,3 +1,4 @@
+using Assets.scripts;
 using Assets.scripts.Models;
 using Newtonsoft.Json;
 using System;
@@ -11,9 +12,8 @@ public class SandboxLogic : MonoBehaviour
     private ApiConnecter apiConnecter;
     public CanvasGroup LoadingScreenPanel;
     public CanvasGroup MainContentPanel;
-    private FullEnvironment2DObject fullEnvironment2DObject;
     public GameObject ObjectPrefab;
-    public int PixelsPerCoordinate = 32;
+    public int PixelsPerCoordinate = 8;
     public int PixelsOffset = 16;
     [SerializeField] private Canvas mainCanvas;
 
@@ -51,7 +51,7 @@ public class SandboxLogic : MonoBehaviour
             try
             {
                 Debug.Log(response);
-                fullEnvironment2DObject = JsonConvert.DeserializeObject<FullEnvironment2DObject>(response);
+                MainManager.Instance.fullEnvironment2DObject = JsonConvert.DeserializeObject<FullEnvironment2DObject>(response);
             }
             catch
             {
@@ -59,6 +59,7 @@ public class SandboxLogic : MonoBehaviour
                 MainManager.Instance.NavigationScene = "";
                 SceneManager.LoadScene("LoginScene");
             }
+            var env = MainManager.Instance.fullEnvironment2DObject;
             if (MainContentPanel == null || MainContentPanel.transform.childCount < 2)
             {
                 Debug.LogError($"Level panel not found");
@@ -67,43 +68,36 @@ public class SandboxLogic : MonoBehaviour
             }
             RectTransform parentRectTransform = MainContentPanel.transform.GetChild(0).GetComponent<RectTransform>();
             Debug.Log($"Parent RectTransform: {parentRectTransform.name}, Child count before instantiation: {parentRectTransform.childCount}");
-
+            parentRectTransform.sizeDelta = new Vector2((env.environmentData.MaxLength * PixelsPerCoordinate) + (PixelsOffset * 2), (env.environmentData.MaxHeight * PixelsPerCoordinate) + (PixelsOffset * 2));
+            parentRectTransform.position = new Vector3(((env.environmentData.MaxLength * PixelsPerCoordinate) + (PixelsOffset * 2)) / 2, 
+                ((env.environmentData.MaxHeight * PixelsPerCoordinate) + (PixelsOffset * 2)) / 2, 0);
             foreach (Transform child in parentRectTransform)
             {
                 Destroy(child.gameObject);
             }
 
-            for (int i = 0; i < fullEnvironment2DObject.environmentObjects.Count; i++)
+            for (int i = 0; i < env.environmentObjects.Count; i++)
             {
-                var singleObject = fullEnvironment2DObject.environmentObjects[i];
+                var singleObject = env.environmentObjects[i];
                 var vector = new Vector3((singleObject.PositionX * PixelsPerCoordinate) + PixelsOffset, (singleObject.PositionY * PixelsPerCoordinate) + PixelsOffset, singleObject.SortingLayer);
                 Debug.Log($"{vector} - {singleObject.PositionX} : {singleObject.PositionY}");
                 GameObject object2D = Instantiate(ObjectPrefab, vector, Quaternion.identity, parentRectTransform);
-                DragDrop dragDropScript = object2D.GetComponent<DragDrop>();
+                GameSprite dragDropScript = object2D.GetComponent<GameSprite>();
+                dragDropScript.ObjectData = singleObject;
                 if (dragDropScript != null)
                 {
-                    //dragDropScript.SetCanvas(mainCanvas);
+                    dragDropScript.SetSprite(singleObject.PrefabId);
                 }
                 if (object2D != null && object2D.transform.childCount >= 4)
                 {
-                    //// Access the second child and get the TextMeshProUGUI component
-                    //TextMeshProUGUI environmentNameLabel = environment.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-                    //environmentNameLabel.text = $"{environments[currentIndex].Name}";
-                    //TextMeshProUGUI environmentSizeLabel = environment.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-                    //environmentSizeLabel.text = $"Size: {environments[currentIndex].MaxHeight}x{environments[currentIndex].MaxLength}";
-                    //Button environmentDeleteButton = environment.transform.GetChild(2).GetComponent<Button>();
-                    //environmentDeleteButton.onClick.RemoveAllListeners();
-                    //environmentDeleteButton.onClick.AddListener(() => DeleteEnvironment(environments[currentIndex].Id));
-                    //Button environmentLoadButton = environment.transform.GetChild(3).GetComponent<Button>();
-                    //environmentLoadButton.onClick.RemoveAllListeners();
-                    //environmentLoadButton.onClick.AddListener(() => LoadEnvironment(environments[currentIndex].Id));
+                    
                 }
-                LoadingScreenPanel.alpha = 0f;
-                MainContentPanel.alpha = 1f;
-                MainContentPanel.interactable = true;
-                LoadingScreenPanel.interactable = false;
-                LoadingScreenPanel.blocksRaycasts = false;
             }
+            LoadingScreenPanel.alpha = 0f;
+            MainContentPanel.alpha = 1f;
+            MainContentPanel.interactable = true;
+            LoadingScreenPanel.interactable = false;
+            LoadingScreenPanel.blocksRaycasts = false;
 
         } else
         {
@@ -112,13 +106,21 @@ public class SandboxLogic : MonoBehaviour
         }
     }
 
-    public void Refresh()
+    public void RefreshInventoryUI()
     {
-        LoadingScreenPanel.alpha = 1f;
-        MainContentPanel.alpha = 0f;
-        MainContentPanel.interactable = false;
-        LoadingScreenPanel.blocksRaycasts = true;
-        LoadingScreenPanel.interactable = true;
+
+    }
+
+    public void Refresh(bool showLoadingScreen)
+    {
+        if (showLoadingScreen)
+        {
+            LoadingScreenPanel.alpha = 1f;
+            MainContentPanel.alpha = 0f;
+            MainContentPanel.interactable = false;
+            LoadingScreenPanel.blocksRaycasts = true;
+            LoadingScreenPanel.interactable = true;
+        }
         StartCoroutine(apiConnecter.SendAuthGetRequest($"api/Environment/{MainManager.Instance.environmentSelected}", RenderUI));
     }
 

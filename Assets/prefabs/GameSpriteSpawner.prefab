@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4669045307086183572}
   - component: {fileID: 1636442761983657522}
   m_Layer: 5
-  m_Name: GameSprite
+  m_Name: GameSpriteSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

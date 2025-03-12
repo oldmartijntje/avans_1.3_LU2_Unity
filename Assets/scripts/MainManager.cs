@@ -9,6 +9,7 @@ public class MainManager : MonoBehaviour
     public LoginResponse LoginResponse; 
     public int environmentSelected; // will get overwritten. it's just debug value
     public string NavigationScene;
+    public FullEnvironment2DObject fullEnvironment2DObject;
 
     private void Awake()
     {
