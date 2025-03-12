@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 324397790535940663}
   - component: {fileID: 6232175230488170979}
   - component: {fileID: 4669045307086183572}
-  - component: {fileID: 1636442761983657522}
+  - component: {fileID: 3699343768718639696}
   m_Layer: 5
   m_Name: GameSpriteSpawner
   m_TagString: Untagged
@@ -123,7 +123,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 31.956116, y: 31.906677}
   m_EdgeRadius: 0
---- !u!114 &1636442761983657522
+--- !u!114 &3699343768718639696
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,17 +132,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 606136674765719211}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caaebe8a62eebb54085ae69af6493493, type: 3}
+  m_Script: {fileID: 11500000, guid: 5393155a7a5dfbb4fa5f401d588bc422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PixelsPerCoordinate: 8
+  PixelsOffset: 32
   targetImage: {fileID: 6232175230488170979}
   sprite1: {fileID: 6370469905869599382, guid: 3b548a852dbd4f141af7e876d82dd38c, type: 3}
   sprite2: {fileID: 4371299277758556883, guid: 3e69772f45ad8244f9755a897a6822b1, type: 3}
   sprite3: {fileID: 2946972671003971604, guid: 358ae631db918d64d88852137564e8a4, type: 3}
   sprite4: {fileID: -1809714246667012964, guid: 97c2c59ee4422804ebc6f03de596b198, type: 3}
-  sprite4b: {fileID: 9090295228139977199, guid: c219e655a1a4b3945999bc5aaf7a16a3, type: 3}
-  sprite4c: {fileID: 7278474920873959737, guid: 17c24eea260db0349b13f65aeffbc269, type: 3}
-  sprite4d: {fileID: -5266313667455228079, guid: 4caad7da29364a74389cac0703ffd07f, type: 3}
   self: {fileID: 606136674765719211}
-  PixelsPerCoordinate: 8
-  PixelsOffset: 32

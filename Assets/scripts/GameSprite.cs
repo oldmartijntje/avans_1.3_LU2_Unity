@@ -6,18 +6,11 @@ using UnityEngine.UI;
 
 namespace Assets.scripts
 {
-    internal class GameSprite: DragDrop
+    internal class GameSprite: DragDropToGrid
     {
-        public Image targetImage;
-        public Sprite sprite1;
-        public Sprite sprite2;
-        public Sprite sprite3;
-        public Sprite sprite4;
-
         public GameObject self;
 
-        public int PixelsPerCoordinate = 16;
-        public int PixelsOffset = 16;
+        
 
         public Object2D ObjectData;
 
@@ -30,7 +23,7 @@ namespace Assets.scripts
         void Start()
         {
             apiConnecter = FindFirstObjectByType<ApiConnecter>();
-            FindEnvSelect();
+            FindSandboxLogic();
             switch (spriteIdentifier)
             {
                 case 0:
@@ -56,7 +49,7 @@ namespace Assets.scripts
             spriteIdentifier = identifier;
         }
 
-        private void FindEnvSelect()
+        private void FindSandboxLogic()
         {
             SandboxLogic sandboxLogicindResult = FindFirstObjectByType<SandboxLogic>();
             if (sandboxLogicindResult != null)
@@ -72,35 +65,9 @@ namespace Assets.scripts
 
         private void GridSnap(Vector2 pos)
         {
-            float x = (pos.x / (PixelsPerCoordinate * 2));
-            float y = (pos.y / (PixelsPerCoordinate * 2));
-            if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
-            {
-                x = Mathf.FloorToInt(x);
-                y = Mathf.FloorToInt(y);
-            }
-            x = x * 2;
-            y = y * 2;
-            Debug.Log($"{x} : {y}");
-            var env = MainManager.Instance.fullEnvironment2DObject;
-            if (y > env.environmentData.MaxHeight)
-            {
-                y = env.environmentData.MaxHeight;
-            } else if (y < 0)
-            {
-                y = 0;
-            }
-            if (x > env.environmentData.MaxLength)
-            {
-                x = env.environmentData.MaxLength;
-            } else if (x < 0)
-            {
-                x = 0;
-            }
-            x = Mathf.FloorToInt(x);
-            y = Mathf.FloorToInt(y);
-            Debug.Log($"{x} : {y}"); 
-            var location = new Vector2((x * PixelsPerCoordinate) + (PixelsOffset / 2), (y * PixelsPerCoordinate) + (PixelsOffset / 2));
+            var gridPos = CalculateGridToLocationPosWithValidation(pos);
+            var locationPos = CalculateLocationToGridPos(pos);
+
             if (pos.x / PixelsPerCoordinate > 200)
             {
                 if (apiConnecter == null)
@@ -109,7 +76,7 @@ namespace Assets.scripts
                     sandboxLogic.Refresh(true);
                 } else
                 {
-                    location = new Vector2(-10000, -10000);
+                    locationPos = new Vector2(-10000, -10000);
                     Debug.Log($"api/Object2D/{MainManager.Instance.environmentSelected}");
                     StartCoroutine(apiConnecter.SendAuthDeleteRequest($"/api/Object2D/{ObjectData.Id}", (string result, string error) =>
                     {
@@ -127,8 +94,8 @@ namespace Assets.scripts
                 else
                 {
                     Debug.Log($"api/Object2D/{MainManager.Instance.environmentSelected}");
-                    ObjectData.PositionX = x;
-                    ObjectData.PositionY = y;
+                    ObjectData.PositionX = gridPos.x;
+                    ObjectData.PositionY = gridPos.y;
                     string jsonString = JsonConvert.SerializeObject(ObjectData);
 
                     StartCoroutine(apiConnecter.SendAuthPutRequest(jsonString, $"/api/Object2D", (string result, string error) =>
@@ -137,7 +104,7 @@ namespace Assets.scripts
                     }));
                 }
             }
-            self.transform.position = location;
+            self.transform.position = locationPos;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Assets.scripts.Models
+﻿using Unity.VisualScripting;
+
+namespace Assets.scripts.Models
 {
     public class Object2DTemplate
     {
@@ -20,5 +22,10 @@
     public class Object2D : Object2DTemplate
     {
         public int Id { get; set; }
+    }
+
+    public class Object2DSpawner
+    {
+        public int PrefabId { get; set; }
     }
 }

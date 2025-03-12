@@ -1,9 +1,7 @@
 using Assets.scripts;
 using Assets.scripts.Models;
 using Newtonsoft.Json;
-using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,6 +11,7 @@ public class SandboxLogic : MonoBehaviour
     public CanvasGroup LoadingScreenPanel;
     public CanvasGroup MainContentPanel;
     public GameObject ObjectPrefab;
+    public GameObject ObjectSpawnerPrefab;
     public int PixelsPerCoordinate = 8;
     public int PixelsOffset = 16;
     [SerializeField] private Canvas mainCanvas;
@@ -38,6 +37,7 @@ public class SandboxLogic : MonoBehaviour
         }
         Debug.Log($"api/Environment/{MainManager.Instance.environmentSelected}");
         StartCoroutine(apiConnecter.SendAuthGetRequest($"/api/Environment/{MainManager.Instance.environmentSelected}", RenderUI));
+        RefreshInventoryUI();
     }
 
     private void RenderUI(string response, string error)
@@ -108,7 +108,30 @@ public class SandboxLogic : MonoBehaviour
 
     public void RefreshInventoryUI()
     {
+        RectTransform parentRectTransform = MainContentPanel.transform.GetChild(1).GetComponent<RectTransform>().GetChild(0).GetComponent<RectTransform>();
+        Debug.Log($"Parent RectTransform: {parentRectTransform.name}, Child count before instantiation: {parentRectTransform.childCount}");
+        foreach (Transform child in parentRectTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            var offsetX = 1700;
+            var offsetY = 950;
+            var vector = new Vector3(offsetX, offsetY + (i * -50), 0);
+            GameObject object2D = Instantiate(ObjectSpawnerPrefab, vector, Quaternion.identity, parentRectTransform);
+            GameSpriteSpawner dragDropScript = object2D.GetComponent<GameSpriteSpawner>();
+            if (dragDropScript != null)
+            {
+                dragDropScript.SetSprite(i);
+                dragDropScript.SetBasePos(vector);
+            }
+        }
+    }
 
+    public void HomeMenu()
+    {
+        SceneManager.LoadScene("EnvironmentSelect");
     }
 
     public void Refresh(bool showLoadingScreen)
