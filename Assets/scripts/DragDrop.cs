@@ -1,6 +1,5 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
-using Newtonsoft.Json;
 
 class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {

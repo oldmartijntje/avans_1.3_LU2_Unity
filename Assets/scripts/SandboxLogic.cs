@@ -1,6 +1,5 @@
 using Assets.scripts.Models;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;

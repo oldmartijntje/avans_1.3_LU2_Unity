@@ -1,7 +1,5 @@
 using Assets.scripts.Models;
 using Newtonsoft.Json;
-using NUnit.Framework;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MainManager : MonoBehaviour

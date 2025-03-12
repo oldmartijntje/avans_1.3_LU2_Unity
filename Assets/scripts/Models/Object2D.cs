@@ -1,5 +1,4 @@
-﻿
-namespace Assets.scripts.Models
+﻿namespace Assets.scripts.Models
 {
     public class Object2DTemplate
     {
